@@ -18,6 +18,22 @@ def search_in_file(pattern, filename, ignore_case, show_path=False):
     except FileNotFoundError:
         print(f"Eroare: Fișierul '{filename}' nu a fost găsit.")
 
+def count_pattern_in_file(pattern, filename, ignore_case, show_path=False):
+    try:
+        flags = re.IGNORECASE if ignore_case else 0
+        regex = re.compile(re.escape(pattern), flags)
+        with open(filename, 'r') as file:
+            content = file.read()
+            match_count = len(regex.findall(content))
+        if show_path:
+            print(f"{filename}: {match_count}")
+        else:
+            print(f"{match_count}")
+    except re.error:
+        print("Error: Invalid regex pattern.")
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+
 def main():
     if len(sys.argv) < 3:
         sys.exit(1)
@@ -35,7 +51,10 @@ def main():
             invert_match = True
 
     if os.path.isfile(path):
-            search_in_file(pattern, path, ignore_case, show_path=False)
+            if count:
+                count_pattern_in_file(pattern, path, ignore_case, show_path=False)
+            else:
+                search_in_file(pattern, path, ignore_case, show_path=False)
 
 if __name__ == '__main__':
     main()
