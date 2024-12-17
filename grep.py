@@ -34,6 +34,30 @@ def count_pattern_in_file(pattern, filename, ignore_case, show_path=False):
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
 
+def search_not_in_file(pattern, filename, ignore_case, show_path=False):
+    try:
+        flags = re.IGNORECASE if ignore_case else 0
+        regex = re.compile(pattern, flags)
+        with open(filename, 'r') as file:
+            line_number = 1
+            found = False
+            for line in file:
+                line_to_check = line.lower() if ignore_case else line
+                if not regex.search(line_to_check):
+                    if show_path:
+                        print(f"{filename}: {line.strip()}")
+                    else:
+                        print(line.strip())
+                    found = True
+                line_number += 1
+            if not found:
+                print(f"{filename}: No unmatched lines found.")
+    except re.error:
+        print("Error: Invalid regex pattern.")
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
+
+
 def main():
     if len(sys.argv) < 3:
         sys.exit(1)
@@ -53,6 +77,8 @@ def main():
     if os.path.isfile(path):
             if count:
                 count_pattern_in_file(pattern, path, ignore_case, show_path=False)
+            elif invert_match:
+                search_not_in_file(pattern, path, ignore_case, show_path=False)
             else:
                 search_in_file(pattern, path, ignore_case, show_path=False)
 
