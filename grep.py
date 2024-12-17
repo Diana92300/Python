@@ -18,21 +18,16 @@ def search_in_file(pattern, filename, ignore_case, show_path=False):
     except FileNotFoundError:
         print(f"Eroare: Fișierul '{filename}' nu a fost găsit.")
 
-def count_pattern_in_file(pattern, filename, ignore_case, show_path=False):
-    try:
-        flags = re.IGNORECASE if ignore_case else 0
-        regex = re.compile(re.escape(pattern), flags)
-        with open(filename, 'r') as file:
-            content = file.read()
-            match_count = len(regex.findall(content))
-        if show_path:
-            print(f"{filename}: {match_count}")
-        else:
-            print(f"{match_count}")
-    except re.error:
-        print("Error: Invalid regex pattern.")
-    except FileNotFoundError:
-        print(f"Error: File '{filename}' not found.")
+def search_in_folder(pattern, path, ignore_case, count, invert_match):
+    for root, _, files in os.walk(path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if count:
+                count_pattern_in_file(pattern, file_path, ignore_case, show_path=True)
+            elif invert_match:
+                search_not_in_file(pattern, file_path, ignore_case, show_path=True)
+            else:
+                search_in_file(pattern, file_path, ignore_case, show_path=True)
 
 def search_not_in_file(pattern, filename, ignore_case, show_path=False):
     try:
@@ -57,6 +52,21 @@ def search_not_in_file(pattern, filename, ignore_case, show_path=False):
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
 
+def count_pattern_in_file(pattern, filename, ignore_case, show_path=False):
+    try:
+        flags = re.IGNORECASE if ignore_case else 0
+        regex = re.compile(re.escape(pattern), flags)
+        with open(filename, 'r') as file:
+            content = file.read()
+            match_count = len(regex.findall(content))
+        if show_path:
+            print(f"{filename}: {match_count}")
+        else:
+            print(f"{match_count}")
+    except re.error:
+        print("Error: Invalid regex pattern.")
+    except FileNotFoundError:
+        print(f"Error: File '{filename}' not found.")
 
 def main():
     if len(sys.argv) < 3:
@@ -74,7 +84,10 @@ def main():
         if arg == '-invert-match' and i not in (1, 2):
             invert_match = True
 
-    if os.path.isfile(path):
+    if os.path.isdir(path):
+        search_in_folder(pattern, path, ignore_case, count, invert_match)
+    else:
+        if os.path.isfile(path):
             if count:
                 count_pattern_in_file(pattern, path, ignore_case, show_path=False)
             elif invert_match:
@@ -84,3 +97,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
