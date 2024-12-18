@@ -14,9 +14,9 @@ def search_in_file(pattern, filename, ignore_case, show_path=False):
                     else:
                         print(line.strip())
     except re.error:
-        print("Eroare: Model regex invalid.")
+        print("Error: Invalid regular expression pattern.")
     except FileNotFoundError:
-        print(f"Eroare: Fișierul '{filename}' nu a fost găsit.")
+        print(f"Error: The file '{filename}' was not found.")
 
 def search_in_folder(pattern, path, ignore_case, count, invert_match):
     for root, _, files in os.walk(path):
@@ -34,17 +34,14 @@ def search_not_in_file(pattern, filename, ignore_case, show_path=False):
         flags = re.IGNORECASE if ignore_case else 0
         regex = re.compile(pattern, flags)
         with open(filename, 'r') as file:
-            line_number = 1
             found = False
             for line in file:
-                line_to_check = line.lower() if ignore_case else line
-                if not regex.search(line_to_check):
+                if not regex.search(line):
                     if show_path:
                         print(f"{filename}: {line.strip()}")
                     else:
                         print(line.strip())
                     found = True
-                line_number += 1
             if not found:
                 print(f"{filename}: No unmatched lines found.")
     except re.error:
@@ -73,6 +70,20 @@ def main():
         sys.exit(1)
     pattern = sys.argv[1]
     path = sys.argv[2]
+    
+    try:
+        re.compile(pattern)
+    except re.error:
+        print("Error: Invalid regular expression.")
+        sys.exit(1)
+
+    try:
+        if not (os.path.isfile(path) or os.path.isdir(path)):
+            raise FileNotFoundError(f"'{path}' is not a valid file or directory.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)  
+        
     ignore_case = False
     count = False
     invert_match = False

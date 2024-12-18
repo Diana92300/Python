@@ -4,5 +4,5 @@ Testam functionalitatea grep_tool.
 Aceasta linie contine test.
 Aceasta este o alta linie simpla.
 Linie cu TEST scris in majuscule 123abcccccd.
-Testam ignorareaa CASE.
+Testam ignorarea CASE.
 Alta linie faa potrivire.
